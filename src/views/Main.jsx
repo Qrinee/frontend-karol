@@ -11,47 +11,64 @@ const texts = ["Karol, Przypomnij o tabletkach o ósmej", "Karol, co miałam dzi
 export default function Main() {
     
     const spokenSentences = useRef([]); 
-    const [apiResponses, setApiResponses] = useState([]);
+    const [isKarolSpeaking, setIsKarolSpeaking] = useState(false);
     const { speak } = useSpeechSynthesis();
     const [showReminderAnimation, setShowReminderAnimation] = useState(false);
     const [reminderContent, setReminderContent] = useState('');
-
+    const [chatHistory, setChatHistory] = useState([]);
     const [showConfirmationAnimation, setShowConfirmationAnimation] = useState(false);
 const [confirmationContent, setConfirmationContent] = useState('');
-    const checkSpeech = (speech) =>{
-      // console.log("test: " + speech);
-      const cleanedSpeech = speech.trim().toLowerCase();
-  
-      if (/\bkarol\b/i.test(cleanedSpeech) && !spokenSentences.current.includes(cleanedSpeech)) {
-        console.log('✅ Nowe zdanie z "karol":', cleanedSpeech);
-        spokenSentences.current.push(cleanedSpeech);
-        console.log(JSON.stringify({ message: cleanedSpeech }));
-        
-        sendToApi(cleanedSpeech)
-      }
-    }
+    const [reminders, setReminders] = useState([])
 
+    const eatingReminder = ["9:00", "18:07", "18:30"]; //Godziny w których asystent ma przypomnieć o jedzeniu
+const drinkingReminder = ["10:00", "12:00","18:24","16:00", "18:00", "01:48"]; //Godziny w których asystent ma przypomnieć o piciu
+const checkSpeech = (speech) => {
+  const cleanedSpeech = speech.trim().toLowerCase();
+  if (/\bkarol\b/i.test(cleanedSpeech) && !spokenSentences.current.includes(cleanedSpeech)) {
+      spokenSentences.current.push(cleanedSpeech);
+      sendToApi(cleanedSpeech);
+  }
+};
 
+const {
+  interimResult,
+  isRecording,
+  results,
+  startSpeechToText,
+  stopSpeechToText,
+} = useSpeechToText({
+  continuous: true,
+  useLegacyResults: false,
+  speechRecognitionProperties: {
+    lang: 'pl-PL',
+    interimResults: true // Allows for displaying real-time speech results
+  }
+});
 
+useEffect(() => {
+  const newFinalResults = results.filter(result => result.isFinal && !result.processed);
+  newFinalResults.forEach(result => {
+      result.processed = true; // Oznacz jako przetworzone
+      setChatHistory(prev => [...prev, { type: 'user', content: result.transcript }]);
+  });
+}, [results]);
     const sendToApi = async (text) => {
         try {
-          const response = await fetch('https://backend-eli-b7ds.vercel.app/message', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message: text })
-          });
-      
-          if (!response.ok) {
-            throw new Error(`Błąd API: ${response.status}`);
-          }
-      
-          const data = await response.json();
+            const response = await fetch('https://backend-eli-b7ds.vercel.app/message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
 
-          // Zapisz wiadomość z backendu do logów
-          if (data?.data?.message) {
-            setApiResponses(prev => [...prev, `[KAROL]: ${data.data.message}`]);
+            const data = await response.json();
+            
+            // Dodaj odpowiedź Karola do historii
+            if (data?.data?.message) {
+              setChatHistory(prev => [...prev, { 
+                  type: 'karol', 
+                  content: data.data.message,
+                  timestamp: new Date().toLocaleTimeString()
+              }]);
           }
           console.log('✅ Odpowiedź z API:', data);
           
@@ -82,20 +99,7 @@ const [confirmationContent, setConfirmationContent] = useState('');
 
 
 
-  const {
-    interimResult,
-    isRecording,
-    results,
-    startSpeechToText,
-    stopSpeechToText,
-  } = useSpeechToText({
-    continuous: true,
-    useLegacyResults: false,
-    speechRecognitionProperties: {
-      lang: 'pl-PL',
-      interimResults: true // Allows for displaying real-time speech results
-    }
-  });
+
 
 
   const [shouldRecord, setShouldRecord] = useState(false);
@@ -113,13 +117,114 @@ const [confirmationContent, setConfirmationContent] = useState('');
     stopSpeechToText();
   }
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      console.log("Sprawdzam kalendarz");
+
+      fetch('https://backend-eli-b7ds.vercel.app/reminder')
+        .then(response => response.json())
+        .then(data => {
+          setReminders(data)
+          console.log("Otrzymane dane:", data);
+        })
+        .catch(error => {
+          console.error("Błąd podczas pobierania danych:", error);
+        });
+        
+
+    }, 50000); // co 1 sekunde
+
+    return () => clearInterval(intervalId); // czyści interval przy odmontowaniu komponentu
+  }, []);
 
 
+  const triggeredTodayRef = useRef(new Set())
+  useEffect(() => {
+    const checkTime = () => {
+      const now = new Date();
+      const timeString = now.toTimeString().slice(0, 5); // HH:mm
+      const dateString = now.toDateString();
+      const key = `${dateString}|${timeString}`;
 
+      // jeżeli jeszcze nie wywołane
+      if (!triggeredTodayRef.current.has(key)) {
+        if (eatingReminder.includes(timeString)) {
+          triggeredTodayRef.current.add(key);
+          remindToEat(timeString);
+        } else if (drinkingReminder.includes(timeString)) {
+          triggeredTodayRef.current.add(key);
+          remindToDrink(timeString);
+        }
+      }
 
+      // czyszczenie przestarzałych wpisów
+      for (let k of triggeredTodayRef.current) {
+        if (!k.startsWith(dateString)) {
+          triggeredTodayRef.current.delete(k);
+        }
+      }
+    };
+
+    const intervalId = setInterval(checkTime, 1000); // sprawdzaj co sekundę
+    return () => clearInterval(intervalId);
+  }, []);
   
 
+  //Przypominanie o braniu leków
+  useEffect(() => {
+    const interval = setInterval(() => {
+      speak({ text: ` `})
+      const now = new Date();
 
+
+      const updated = reminders.map((reminder) => {
+        const reminderTime = new Date(reminder.setTo);
+
+        const sameDay = reminderTime.toDateString() === now.toDateString();
+        const sameMinute = reminderTime.getHours() === now.getHours() &&
+                           reminderTime.getMinutes() === now.getMinutes();
+
+
+        const hours = reminderTime.getHours().toString();
+        const minutes = reminderTime.getMinutes();
+        
+        const formattedMinutes = minutes < 10 ? '0' + minutes : minutes.toString();
+        
+        const godzina = hours + ':' + formattedMinutes;
+
+        if (sameMinute && sameDay) {
+          console.log(`Jest godzina ${godzina } : ${now.getMinutes}, ${reminder.reminder}`);
+          speak({ text: `Jest godzina ${godzina}, ${reminder.reminder}`})
+        }
+
+        if (reminderTime < now && sameDay) {
+          console.log(godzina);
+          
+          speak({ text: `Czy zażyłeś już? ${reminder.reminder}, który zażywasz o godzinie ${godzina}, jeśli już to zrobiłeś to potwierdź to głosowo` })
+          
+          console.log(`❗ Czy wziąłeś już lek: ${reminder.reminder}?`);
+        }
+
+        return reminder;
+      });
+
+      setReminders(updated);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [reminders]);
+
+
+
+  const remindToEat = (time) => {
+    console.log(`Przypomnienie o jedzeniu! Godzina: ${time}`);
+    speak({ text: 'Przypomnienie! Przypominam o porze na posiłek' })
+  };
+
+  const remindToDrink = (time) => {
+    console.log(`Przypomnienie o piciu! Godzina: ${time}`);
+    speak({ text: 'Przypomnienie! Przypominam o regularnym nawadnianiu' })
+  };
 
   const [currentText, setCurrentText] = useState("Karol, przypomnij o tabletkach o ósmej");
   const nav = useNavigate()
@@ -173,28 +278,55 @@ const [confirmationContent, setConfirmationContent] = useState('');
         <button style={{backgroundColor: 'white', color: 'black', padding: 20, margin: 10, fontSize: 20}}>Tryb alzheimer</button>
         <button style={{backgroundColor: 'white', color: 'black', padding: 20, margin: 10, fontSize: 20}}>Przypomnienie lekarstwo</button>
         <button style={{backgroundColor: 'white', color: 'black', padding: 20, margin: 10, fontSize: 20}}>Wezwanie pomocy</button>
-        <button 
-  style={{backgroundColor: 'white', color: 'black', padding: 20, margin: 10, fontSize: 20}}
-  onClick={() => {
-    setReminderContent("Testowe przypomnienie dodane!");
-    setShowReminderAnimation(true);
-    setTimeout(() => setShowReminderAnimation(false), 3000);
-  }}
->
-  Testuj animację
-</button>
   {results.map((result) => (
     !result.isFinal ? checkSpeech(result.transcript) : ''
   ))}
   
   <div style={{height: "300px", overflowY: 'scroll'}} ref={scrollRef}>
-    {results.map((result, index) => (
-      !result.isFinal ? <div key={index} style={{fontSize: 20, fontFamily: 'Arial'}}>[TY]: {result.transcript}</div> : ''
-    ))}
-    {apiResponses.map((res, index) => (
-      <div key={index} style={{ fontSize: 20, color: '#007700', fontFamily: 'Arial' }}>{res}</div>
-    ))}
-  </div>
+                    {chatHistory.map((entry, index) => (
+                        <div 
+                            key={index}
+                            style={{
+                                fontSize: 20,
+                                fontFamily: 'Arial',
+                                color: entry.type === 'user' ? '#2c3e50' : '#4a90e2',
+                                margin: '10px 0',
+                                padding: '10px',
+                                borderRadius: '8px',
+                                backgroundColor: entry.type === 'user' ? '#f0f4f8' : '#e3f2fd',
+                                alignSelf: entry.type === 'user' ? 'flex-end' : 'flex-start',
+                                maxWidth: '80%',
+                                wordBreak: 'break-word'
+                            }}
+                        >
+                            <strong>{entry.type === 'user' ? '[TY]: ' : '[KAROL]: '}</strong>
+                            {entry.content}
+                            <div style={{
+                                fontSize: '0.8em',
+                                color: entry.type === 'user' ? '#7f8c8d' : '#5a90d1',
+                                marginTop: '5px'
+                            }}>
+                                {entry.timestamp || new Date().toLocaleTimeString()}
+                            </div>
+                        </div>
+                    ))}
+                    {results.map((result, index) => (
+                        !result.isFinal && (
+                            <div 
+                                key={`temp-${index}`}
+                                style={{
+                                    fontSize: 20,
+                                    fontFamily: 'Arial',
+                                    color: '#7f8c8d',
+                                    fontStyle: 'italic',
+                                    margin: '5px 0'
+                                }}
+                            >
+                                [Rozpoznaję...]: {result.transcript}
+                            </div>
+                        )
+                    ))}
+                </div>
 </div>
     
       <div className="tell">
@@ -205,7 +337,7 @@ const [confirmationContent, setConfirmationContent] = useState('');
       </div>
       <div className="w-full">
         <div className="main-part">
-          <div className="container">
+          <div className={`container ${isRecording ? 'rec' : ''}`}>
             <span></span>
             <span></span>
             <span></span>
