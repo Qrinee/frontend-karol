@@ -1,0 +1,545 @@
+.notyfications-container {
+    padding: 2rem;
+    min-height: 100vh;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+/* Animacja pulsowania */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 25px rgba(74, 144, 226, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 144, 226, 0);
+  }
+}
+
+
+  
+  .notyfications-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .header-icon {
+    font-size: 2.5rem;
+    color: #4a90e2;
+  }
+  
+  .page-title {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin: 0;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 4rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .empty-icon {
+    font-size: 3rem;
+    color: #bdc3c7;
+    margin-bottom: 1rem;
+  }
+  
+  .empty-text {
+    color: #7f8c8d;
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  
+  .reminders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .reminder-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+  }
+  
+  .reminder-card:hover {
+    transform: translateY(-3px);
+  }
+  
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .reminder-icon {
+    font-size: 1.5rem;
+    color: #4a90e2;
+  }
+  
+  .reminder-title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+  }
+  
+  .card-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+  }
+  
+  .time-icon {
+    color: #7f8c8d;
+    font-size: 1rem;
+  }
+  
+  .reminder-time {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+  }
+  
+  .bottom-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 1rem;
+    border-radius: 15px;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05);
+    position: relative;
+  }
+
+/* Dodaj na końcu pliku Notyfications.css */
+
+/* Animacja przypomnienia */
+.reminder-animation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  background-color: #4CAF50;
+  color: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 80%;
+  animation: reminderPopIn 1.5s forwards;
+}
+
+@keyframes reminderPopIn {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes reminderPopOut {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.reminder-checkmark {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 5;
+  stroke: #fff;
+  stroke-miterlimit: 10;
+  margin: 10% auto;
+  box-shadow: inset 0px 0px 0px #4CAF50;
+  animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+}
+
+.reminder-checkmark__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 5;
+  stroke-miterlimit: 10;
+  stroke: #fff;
+  fill: none;
+  animation: stroke .6s cubic-bezier(0.650, 0.000, 0.450, 1.000) forwards;
+}
+
+.reminder-checkmark__check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) .8s forwards;
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes scale {
+  0%, 100% {
+    transform: none;
+  }
+  50% {
+    transform: scale3d(1.1, 1.1, 1);
+  }
+}
+
+/* Animacja potwierdzenia wykonania */
+.confirmation-animation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  background-color: #4a90e2; /* Niebieski zamiast zielonego */
+  color: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 80%;
+  animation: reminderPopIn 1.5s forwards;
+}
+
+.confirmation-checkmark {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 5;
+  stroke: #fff;
+  stroke-miterlimit: 10;
+  margin: 10% auto;
+  box-shadow: inset 0px 0px 0px #4a90e2;
+  animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+}
+
+.confirmation-checkmark__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 5;
+  stroke-miterlimit: 10;
+  stroke: #fff;
+  fill: none;
+  animation: stroke .6s cubic-bezier(0.650, 0.000, 0.450, 1.000) forwards;
+}
+
+.confirmation-checkmark__check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) .8s forwards;
+}
+
+
+@keyframes fill {
+  100% {
+    box-shadow: inset 0px 0px 0px 30px #4CAF50;
+  }
+}
+
+.reminder-content {
+  margin-top: 15px;
+  font-size: 1.2rem;
+}
+
+
+
+  /* Styl aktywnego mikrofonu */
+.mic-button.active {
+  animation: pulse 1.5s infinite;
+  background: linear-gradient(to right, #cb2d3e, #ef473a); /* opcjonalnie zmień kolor */
+}
+
+
+
+  .mic-button-container {
+    position: absolute;
+    left: 50%;
+    z-index: 99;
+    transform: translateX(-50%);
+    bottom: 50px;
+  }
+  
+  .mic-button {
+    width: 130px;
+
+    height: 130px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4a90e2, #36d1dc);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+  }
+  .condition-icon {
+    font-size: 24px;
+    margin-right: 10px;
+    color: #4a6fa5;
+  }
+  
+  .card-header {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  
+  /* Notyfications.css - dodatkowe style dla wersji senior-friendly */
+
+.senior-friendly {
+    font-size: 18px;
+  }
+  
+  .premium-card {
+    position: relative;
+    border: 2px solid #4a6fa5;
+    border-radius: 12px;
+    margin-bottom: 25px;
+  }
+  
+  .premium-badge {
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: #4a6fa5;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  .price-container {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  
+  .purchase-button {
+    background: #4a6fa5;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .purchase-button:hover {
+    background: #3a5a80;
+  }
+  
+  .senior-info-box {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 30px 15px;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .senior-info-box h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+  }
+  
+  .senior-info-box p {
+    font-size: 16px;
+    margin: 8px 0;
+    color: #333;
+  }
+  
+  .feature-icon {
+    color: #4a6fa5;
+    font-weight: bold;
+    margin-right: 8px;
+  }
+  
+  .page-subtitle {
+    color: #666
+  }
+
+  
+  .reminder-title {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+  }
+
+  .loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ccc;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #333;
+}
+
+  
+  .mic-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4);
+  }
+  
+  .mic-icon {
+    font-size: 3rem;
+    color: white;
+  }
+  
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .nav-item.active {
+    background: #f0f7ff;
+  }
+  
+  .nav-item.active .nav-icon {
+    color: #4a90e2;
+  }
+  
+  .nav-icon {
+    font-size: 1.8rem;
+    color: #bdc3c7;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s ease;
+  }
+  
+  .nav-label {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    font-weight: 500;
+  }
+  
+  @media (max-width: 768px) {
+    .notyfications-container {
+      padding: 1rem;
+    }
+    
+    .reminders-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .mic-button {
+      width: 50px;
+      height: 50px;
+      bottom: 20px;
+    }
+    
+    .mic-icon {
+      font-size: 1.2rem;
+    }
+    
+    .nav-icon {
+      font-size: 1.5rem;
+    }
+    
+    .nav-label {
+      font-size: 0.8rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .bottom-nav {
+      padding: 0.5rem;
+    }
+    
+    .mic-button {
+
+      width: 45px;
+      height: 45px;
+      bottom: 15px;
+    }
+    
+    .nav-item {
+      padding: 0.5rem;
+    }
+  }
