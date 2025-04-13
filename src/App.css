@@ -219,8 +219,27 @@
   width: 30vw;
   min-height: 20vh;
   background-color: rgb(0, 0, 0);
+  z-index: 1000; /* Ensure it appears above other content */
+  overflow-y: auto; /* Add scroll if content is too long */
 }
 
+/* Mobile styles */
+@media only screen and (max-width: 800px) {
+  .devtool {
+    display: none;
+  }
+  
+  .devtool button {
+    width: 100%; /* Full width buttons on mobile */
+    margin: 5px 0; /* Adjust margin for stacked buttons */
+    padding: 15px; /* Slightly smaller padding */
+    font-size: 18px; /* Smaller font for buttons */
+  }
+  
+  .devtool > div {
+    max-height: 40vh; /* Limit height of chat history on mobile */
+  }
+}
 .tell span {
   display: inline-block;
   animation: slideInOut 4s ease-out forwards;
@@ -281,9 +300,6 @@ body {
 }
 
 @media only screen and (max-width: 800px) {
-  .devtool{
-    width: 100vw;
-  }
   #root {
     width: 100vw;
   }

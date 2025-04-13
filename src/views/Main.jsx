@@ -272,17 +272,33 @@ useEffect(() => {
     )}
 
 <div className='devtool'>
-  <span style={{fontWeight: 'bold'}}>Narzędzie demo teoretycznych sytuacji:</span>
-  <p style={{fontSize: 20, color: 'gray'}}> (Nasze urządzenie reaguje na mowę, zalecny mikforon)</p>
-  <button style={{backgroundColor: 'white', color: 'black', padding: 20, margin: 10, fontSize: 20}}>Wnuczek napisał wiadomość</button>
-        <button style={{backgroundColor: 'white', color: 'black', padding: 20, margin: 10, fontSize: 20}}>Tryb alzheimer</button>
-        <button style={{backgroundColor: 'white', color: 'black', padding: 20, margin: 10, fontSize: 20}}>Przypomnienie lekarstwo</button>
-        <button style={{backgroundColor: 'white', color: 'black', padding: 20, margin: 10, fontSize: 20}}>Wezwanie pomocy</button>
+  <span style={{fontWeight: 'bold', fontSize: 'clamp(18px, 4vw, 30px)'}}>Narzędzie demo teoretycznych sytuacji:</span>
+  <p style={{fontSize: 'clamp(14px, 3vw, 20px)', color: 'gray'}}> (Nasze urządzenie reaguje na mowę, zalecny mikforon)</p>
+  
+  <div style={{display: 'flex', flexDirection: window.innerWidth <= 800 ? 'column' : 'row', flexWrap: 'wrap'}}>
+    <button style={{backgroundColor: 'white', color: 'black', padding: '15px', margin: '5px', fontSize: 'clamp(14px, 3vw, 20px)', flex: window.innerWidth <= 800 ? '1' : 'none'}}>
+      Wnuczek napisał wiadomość
+    </button>
+    <button style={{backgroundColor: 'white', color: 'black', padding: '15px', margin: '5px', fontSize: 'clamp(14px, 3vw, 20px)', flex: window.innerWidth <= 800 ? '1' : 'none'}}>
+      Tryb alzheimer
+    </button>
+    <button style={{backgroundColor: 'white', color: 'black', padding: '15px', margin: '5px', fontSize: 'clamp(14px, 3vw, 20px)', flex: window.innerWidth <= 800 ? '1' : 'none'}}>
+      Przypomnienie lekarstwo
+    </button>
+    <button style={{backgroundColor: 'white', color: 'black', padding: '15px', margin: '5px', fontSize: 'clamp(14px, 3vw, 20px)', flex: window.innerWidth <= 800 ? '1' : 'none'}}>
+      Wezwanie pomocy
+    </button>
+  </div>
+
   {results.map((result) => (
     !result.isFinal ? checkSpeech(result.transcript) : ''
   ))}
   
-  <div style={{height: "300px", overflowY: 'scroll'}} ref={scrollRef}>
+  <div style={{
+    height: "300px",
+    overflowY: 'scroll',
+    fontSize: 'clamp(14px, 3vw, 20px)'
+  }} ref={scrollRef}>
                     {chatHistory.map((entry, index) => (
                         <div 
                             key={index}
