@@ -54,7 +54,7 @@ export default function Notyfications() {
                 <div key={reminder._id} className="reminder-card">
                   <div className="card-header">
                     <BsBellFill className="reminder-icon" />
-                    <h3 className="reminder-title" style={{ fontSize: 22 }}>{reminder.reminder}</h3>
+                    <h3 className="reminder-title" style={{ fontSize: 22, fontFamily: 'Arial' }}>{reminder.reminder}</h3>
                   </div>
                   <div className="card-footer" style={{ fontFamily: 'Arial' }}>
                     <BsClock className="time-icon" style={{ fontSize: 50, marginRight: 20 }} />
