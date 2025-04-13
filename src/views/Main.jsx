@@ -381,7 +381,7 @@ useEffect(() => {
         </div>
       </nav>
       </div>
-      <button onClick={() => speak({text: "Panie Andrzeju, czas zażyć leki na nadciśnienie"})}>Czas na leki</button>
+      <button style={{padding: 20}} onClick={() => speak({text: "Panie Andrzeju, czas zażyć leki na nadciśnienie"})}>Czas na leki</button>
     </div>
   );
 }
