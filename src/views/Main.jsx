@@ -381,9 +381,6 @@ useEffect(() => {
         </div>
       </nav>
       </div>
-      <button style={{padding: 20}} onClick={() => setTimeout(() => speak({text: "Panie Andrzeju, jest godzina siódma rano. Czas zażyć leki na nadciśnienie"}), 5000)} >Czas na leki</button>
-      <button style={{padding: 20}} onClick={() => setTimeout(() => speak({text: "Panie Andrzeju, pora na krótkie ćwiczenie pamięci. Czy chce Pan zacząć?"}), 5000)} >Ćwiczenie pamięci</button>
-      <button style={{padding: 20}} onClick={() => setTimeout(() => speak({text: "Świetnie! Proszę zapamiętać trzy słowa: jabłko, zegarek, niebieski. Gotowe?"}), 5000)} >Czas na leki</button>
     </div>
   );
 }
