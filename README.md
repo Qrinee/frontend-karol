@@ -39,6 +39,6 @@ cd karol-frontend</code></pre>
   <h2 id="uruchomienie">Uruchomienie</h2>
   <p>Uruchom aplikację w trybie deweloperskim:</p>
   <pre><code>npm run dev</code></pre>
-  <p>Po uruchomieniu aplikacji, otwórz przeglądarkę i wejdź na adres <a href="http://localhost:3000" target="_blank">http://localhost:3000</a>.</p>
+  <p>Po uruchomieniu aplikacji, otwórz przeglądarkę i wejdź na adres <a href="http://localhost:5173" target="_blank">http://localhost:5173</a>.</p>
 
   
