@@ -7,7 +7,6 @@
     <li><a href="#technologie">Technologie</a></li>
     <li><a href="#instalacja">Instalacja</a></li>
     <li><a href="#uruchomienie">Uruchomienie</a></li>
-    <li><a href="#budowanie-wersji-produkcji">Budowanie wersji produkcyjnej</a></li>
   </ul>
 
   <h2 id="opis-projektu">Opis projektu</h2>
@@ -41,10 +40,5 @@ cd karol-frontend</code></pre>
   <p>Uruchom aplikację w trybie deweloperskim:</p>
   <pre><code>npm run dev</code></pre>
   <p>Po uruchomieniu aplikacji, otwórz przeglądarkę i wejdź na adres <a href="http://localhost:3000" target="_blank">http://localhost:3000</a>.</p>
-
-  <h2 id="budowanie-wersji-produkcji">Budowanie wersji produkcyjnej</h2>
-  <p>Aby zbudować aplikację do produkcji, użyj komendy:</p>
-  <pre><code>npm run build</code></pre>
-  <p>W wyniku budowania zostanie wygenerowany folder <code>dist</code>, który zawiera zoptymalizowany kod gotowy do wdrożenia.</p>
 
   
