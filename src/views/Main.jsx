@@ -381,7 +381,7 @@ useEffect(() => {
         </div>
       </nav>
       </div>
-      <button style={{padding: 20}} onClick={() => speak({text: "Panie Andrzeju, czas zażyć leki na nadciśnienie"})}>Czas na leki</button>
+      <button style={{padding: 20}} onClick={() => setTimeout(() => speak({text: "Panie Andrzeju, jest godzina siódma rano. Czas zażyć leki na nadciśnienie"}), 5000)} >Czas na leki</button>
     </div>
   );
 }
