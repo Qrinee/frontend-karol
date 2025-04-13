@@ -226,9 +226,15 @@
 /* Mobile styles */
 @media only screen and (max-width: 800px) {
   .devtool {
-    display: none;
+    width: 100vw;
+    position:static;
+    margin-top: 100vh;
+    font-size: 24px; /* Slightly smaller font for mobile */
+    padding: 15px;
   }
-  
+  .main-part{
+    height: auto;
+  }
   .devtool button {
     width: 100%; /* Full width buttons on mobile */
     margin: 5px 0; /* Adjust margin for stacked buttons */
