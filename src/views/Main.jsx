@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { BsBell, BsBellFill, BsGearFill, BsMicFill, BsMicrosoft } from 'react-icons/bs';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { Link, useNavigate } from 'react-router-dom';
@@ -22,13 +22,21 @@ const [confirmationContent, setConfirmationContent] = useState('');
 
     const eatingReminder = ["9:00", "18:07", "18:30"]; //Godziny w których asystent ma przypomnieć o jedzeniu
 const drinkingReminder = ["10:00", "12:00","18:24","16:00", "18:00", "01:48"]; //Godziny w których asystent ma przypomnieć o piciu
-const checkSpeech = (speech) => {
+const checkSpeech = useCallback((speech) => {
   const cleanedSpeech = speech.trim().toLowerCase();
+  if (cleanedSpeech.length < 3) return; // Ignoruj zbyt krótkie komendy
+  
   if (/\bkarol\b/i.test(cleanedSpeech) && !spokenSentences.current.includes(cleanedSpeech)) {
-      spokenSentences.current.push(cleanedSpeech);
-      sendToApi(cleanedSpeech);
+    spokenSentences.current.push(cleanedSpeech);
+    sendToApi(cleanedSpeech);
+    
+    // Resetowanie sesji na mobile
+    if (navigator.userAgent.match(/Mobile/)) {
+      stopSpeechToText();
+      setTimeout(startSpeechToText, 1000);
+    }
   }
-};
+}, [sendToApi, startSpeechToText, stopSpeechToText]);
 
 const {
   interimResult,
@@ -37,13 +45,44 @@ const {
   startSpeechToText,
   stopSpeechToText,
 } = useSpeechToText({
-  continuous: true,
+  continuous: navigator.userAgent.match(/Mobile/) ? false : true,
   useLegacyResults: false,
+  timeout: navigator.userAgent.match(/Mobile/) ? 5000 : 3000,
   speechRecognitionProperties: {
     lang: 'pl-PL',
-    interimResults: true // Allows for displaying real-time speech results
+    interimResults: navigator.userAgent.match(/Mobile/) ? false : true // Allows for displaying real-time speech results
   }
 });
+
+const useSpeechTimeout = (results, timeout = 3000) => {
+  const [finalTranscript, setFinalTranscript] = useState('');
+  const timeoutRef = useRef();
+
+  useEffect(() => {
+    if (results.length > 0) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        const newTranscript = results
+          .filter(result => result.isFinal && result.confidence > 0.7)
+          .map(result => result.transcript)
+          .join(' ');
+        setFinalTranscript(newTranscript);
+      }, timeout);
+    }
+    return () => clearTimeout(timeoutRef.current);
+  }, [results, timeout]);
+
+  return finalTranscript;
+};
+
+const finalTranscript = useSpeechTimeout(results, navigator.userAgent.match(/Mobile/) ? 5000 : 3000);
+
+
+useEffect(() => {
+  if (finalTranscript) {
+    checkSpeech(finalTranscript);
+  }
+}, [finalTranscript]);
 
 useEffect(() => {
   const newFinalResults = results.filter(result => result.isFinal && !result.processed);

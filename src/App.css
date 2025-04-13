@@ -223,6 +223,18 @@
   overflow-y: auto; /* Add scroll if content is too long */
 }
 
+@media (hover: none) {
+  .mic-button {
+    padding: 1.5rem !important;
+    margin: 1rem !important;
+  }
+  
+  .speech-wrapper {
+    touch-action: manipulation;
+    user-select: none;
+  }
+}
+
 /* Mobile styles */
 @media only screen and (max-width: 800px) {
   .devtool {
