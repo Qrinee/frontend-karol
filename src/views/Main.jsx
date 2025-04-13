@@ -272,23 +272,17 @@ useEffect(() => {
       </div>
     )}
 
-<div className='devtool'>
-  <span style={{fontWeight: 'bold', fontSize: 'clamp(18px, 4vw, 30px)'}}>Narzędzie demo teoretycznych sytuacji:</span>
+<div className='devtool' style={{fontFamily: 'Arial'}}>
   <p style={{fontSize: 'clamp(14px, 3vw, 20px)', color: 'gray'}}> (Nasze urządzenie reaguje na mowę, zalecny mikforon)</p>
   
   <div style={{display: 'flex', flexDirection: window.innerWidth <= 800 ? 'column' : 'row', flexWrap: 'wrap'}}>
-    <button style={{backgroundColor: 'white', color: 'black', padding: '15px', margin: '5px', fontSize: 'clamp(14px, 3vw, 20px)', flex: window.innerWidth <= 800 ? '1' : 'none'}}>
-      Wnuczek napisał wiadomość
-    </button>
-    <button style={{backgroundColor: 'white', color: 'black', padding: '15px', margin: '5px', fontSize: 'clamp(14px, 3vw, 20px)', flex: window.innerWidth <= 800 ? '1' : 'none'}}>
-      Tryb alzheimer
-    </button>
-    <button style={{backgroundColor: 'white', color: 'black', padding: '15px', margin: '5px', fontSize: 'clamp(14px, 3vw, 20px)', flex: window.innerWidth <= 800 ? '1' : 'none'}}>
-      Przypomnienie lekarstwo
-    </button>
-    <button style={{backgroundColor: 'white', color: 'black', padding: '15px', margin: '5px', fontSize: 'clamp(14px, 3vw, 20px)', flex: window.innerWidth <= 800 ? '1' : 'none'}}>
-      Wezwanie pomocy
-    </button>
+    Kliknij środkowy przycisk menu i powiedz np:
+      <ul style={{fontSize: 20}}>
+        <li>"Karol, przypomnij mi jutro o 13 abym wziął/ła tabletkę na nadciśnienie"</li>
+        <li>"Karol, już wzięłam/łem tabletkę."</li>
+        <li>"Jak podłączyć dekoder Karol?"</li>
+        <li style={{color: 'red'}}>Możesz pytać o cokolwiek, byle ze słowem KAROL</li>
+      </ul>
   </div>
 
   {results.map((result) => (
