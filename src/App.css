@@ -223,6 +223,20 @@
   overflow-y: auto; /* Add scroll if content is too long */
 }
 
+.xdd{
+  display: none;
+  position: absolute;
+margin-left: auto;
+margin-right: auto;
+left: 0;
+right: 0;
+text-align: center;
+bottom: 80px;
+color: white;
+font-size: 30px;
+z-index: 9999;
+}
+
 @media (hover: none) {
   .mic-button {
     padding: 1.5rem !important;
@@ -237,15 +251,20 @@
 
 /* Mobile styles */
 @media only screen and (max-width: 800px) {
+  .xdd{
+    display: block;
+  }
+
   .devtool {
     width: 100vw;
+    display: none;
     position:static;
     margin-top: 100vh;
     font-size: 24px; /* Slightly smaller font for mobile */
     padding: 15px;
   }
   .main-part{
-    height: auto;
+    height: 90vh;
   }
   .devtool button {
     width: 100%; /* Full width buttons on mobile */

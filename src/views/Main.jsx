@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BsBell, BsBellFill, BsGearFill, BsMicFill, BsMicrosoft } from 'react-icons/bs';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { Link, useNavigate } from 'react-router-dom';
@@ -9,68 +9,7 @@ import useSpeechToText from 'react-hook-speech-to-text';
 const texts = ["Karol, Przypomnij o tabletkach o ósmej", "Karol, co miałam dzisiaj zrobic?", "Karol, jak podłączyć dekoder?", "Karol, o której są msze w Niedzielę?", "Karol, pokaż co wysłał Kamil"];
 
 export default function Main() {
-
-  const {
-    interimResult,
-    isRecording,
-    results,
-    startSpeechToText,
-    stopSpeechToText,
-  } = useSpeechToText({
-    continuous: navigator.userAgent.match(/Mobile/) ? false : true,
-    useLegacyResults: false,
-    timeout: navigator.userAgent.match(/Mobile/) ? 5000 : 3000,
-    speechRecognitionProperties: {
-      lang: 'pl-PL',
-      interimResults: navigator.userAgent.match(/Mobile/) ? false : true // Allows for displaying real-time speech results
-    }
-  });
-
-  const sendToApi = async (text) => {
-    try {
-        const response = await fetch('https://backend-eli-b7ds.vercel.app/message', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text })
-        });
-
-        const data = await response.json();
-        
-        // Dodaj odpowiedź Karola do historii
-        if (data?.data?.message) {
-          setChatHistory(prev => [...prev, { 
-              type: 'karol', 
-              content: data.data.message,
-              timestamp: new Date().toLocaleTimeString()
-          }]);
-      }
-      console.log('✅ Odpowiedź z API:', data);
-      
-      // Obsługa dodawania przypomnienia
-      if (data.data?.action === "addReminder") {
-        setReminderContent(data.data.message || "Przypomnienie dodane!");
-        setShowReminderAnimation(true);
-        setTimeout(() => {
-          setShowReminderAnimation(false);
-        }, 3000);
-      }
-      
-      // Obsługa potwierdzenia wykonania
-      if (data.data?.action === "confirmDone") {
-        setConfirmationContent(data.data.message || "Potwierdzono wykonanie!");
-        setShowConfirmationAnimation(true);
-        setTimeout(() => {
-          setShowConfirmationAnimation(false);
-        }, 3000);
-      }
-      
-      speak({ text: `${data.data?.message || data.message}` });
-      return data;
-    } catch (error) {
-      console.error('❌ Błąd przy wysyłaniu do API:', error);
-    }
-  };
-
+    
     const spokenSentences = useRef([]); 
     const [isKarolSpeaking, setIsKarolSpeaking] = useState(false);
     const { speak } = useSpeechSynthesis();
@@ -83,53 +22,29 @@ const [confirmationContent, setConfirmationContent] = useState('');
 
     const eatingReminder = ["9:00", "18:07", "18:30"]; //Godziny w których asystent ma przypomnieć o jedzeniu
 const drinkingReminder = ["10:00", "12:00","18:24","16:00", "18:00", "01:48"]; //Godziny w których asystent ma przypomnieć o piciu
-const checkSpeech = useCallback((speech) => {
+const checkSpeech = (speech) => {
   const cleanedSpeech = speech.trim().toLowerCase();
-  if (cleanedSpeech.length < 3) return; // Ignoruj zbyt krótkie komendy
-  
   if (/\bkarol\b/i.test(cleanedSpeech) && !spokenSentences.current.includes(cleanedSpeech)) {
-    spokenSentences.current.push(cleanedSpeech);
-    sendToApi(cleanedSpeech);
-    
-    // Resetowanie sesji na mobile
-    if (navigator.userAgent.match(/Mobile/)) {
-      stopSpeechToText();
-      setTimeout(startSpeechToText, 1000);
-    }
+      spokenSentences.current.push(cleanedSpeech);
+      sendToApi(cleanedSpeech);
   }
-}, [sendToApi, startSpeechToText, stopSpeechToText]);
-
-
-
-const useSpeechTimeout = (results, timeout = 3000) => {
-  const [finalTranscript, setFinalTranscript] = useState('');
-  const timeoutRef = useRef();
-
-  useEffect(() => {
-    if (results.length > 0) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        const newTranscript = results
-          .filter(result => result.isFinal && result.confidence > 0.7)
-          .map(result => result.transcript)
-          .join(' ');
-        setFinalTranscript(newTranscript);
-      }, timeout);
-    }
-    return () => clearTimeout(timeoutRef.current);
-  }, [results, timeout]);
-
-  return finalTranscript;
 };
 
-const finalTranscript = useSpeechTimeout(results, navigator.userAgent.match(/Mobile/) ? 5000 : 3000);
-
-
-useEffect(() => {
-  if (finalTranscript) {
-    checkSpeech(finalTranscript);
+const {
+  interimResult,
+  isRecording,
+  results,
+  startSpeechToText,
+  stopSpeechToText,
+} = useSpeechToText({
+  continuous: navigator.userAgent.match('/Mobile/') ? false : true,
+  useLegacyResults: false,
+  timeout: navigator.userAgent.match('/Mobile/') ? 5000 : 3000,
+  speechRecognitionProperties: {
+    lang: 'pl-PL',
+    interimResults: navigator.userAgent.ma // Allows for displaying real-time speech results
   }
-}, [finalTranscript]);
+});
 
 useEffect(() => {
   const newFinalResults = results.filter(result => result.isFinal && !result.processed);
@@ -138,6 +53,50 @@ useEffect(() => {
       setChatHistory(prev => [...prev, { type: 'user', content: result.transcript }]);
   });
 }, [results]);
+    const sendToApi = async (text) => {
+        try {
+            const response = await fetch('https://backend-eli-b7ds.vercel.app/message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+
+            const data = await response.json();
+            
+            // Dodaj odpowiedź Karola do historii
+            if (data?.data?.message) {
+              setChatHistory(prev => [...prev, { 
+                  type: 'karol', 
+                  content: data.data.message,
+                  timestamp: new Date().toLocaleTimeString()
+              }]);
+          }
+          console.log('✅ Odpowiedź z API:', data);
+          
+          // Obsługa dodawania przypomnienia
+          if (data.data?.action === "addReminder") {
+            setReminderContent(data.data.message || "Przypomnienie dodane!");
+            setShowReminderAnimation(true);
+            setTimeout(() => {
+              setShowReminderAnimation(false);
+            }, 3000);
+          }
+          
+          // Obsługa potwierdzenia wykonania
+          if (data.data?.action === "confirmDone") {
+            setConfirmationContent(data.data.message || "Potwierdzono wykonanie!");
+            setShowConfirmationAnimation(true);
+            setTimeout(() => {
+              setShowConfirmationAnimation(false);
+            }, 3000);
+          }
+          
+          speak({ text: `${data.data?.message || data.message}` });
+          return data;
+        } catch (error) {
+          console.error('❌ Błąd przy wysyłaniu do API:', error);
+        }
+      };
 
 
 
@@ -403,16 +362,17 @@ useEffect(() => {
           </div>
         </div>
 
-
+        <BsMicFill className='xdd'   />
       <nav className="bottom-nav">
         <div className="nav-item" onClick={() => nav('/notyfications')}>
           <BsBellFill className="nav-icon" />
           <span className="nav-label">Przypomnienia</span>
         </div>
         {/* Nowy przycisk mikrofonu */}
-        <div className={`mic-button-container ${isRecording ? 'recording' : ''}`} onClick={isRecording ? stopSpeechRecognition : startSpeechRecognition}>
+        <div className={`mic-button-container ${isRecording ? 'recording' : ''}`} 
+     onClick={isRecording ? stopSpeechRecognition : startSpeechRecognition}>
   <button className={`mic-button ${isRecording ? 'active' : ''}`}>
-    <BsMicFill className="mic-icon" />
+    <BsMicFill className="mic-icon"  />
   </button>
 </div>
         <div className="nav-item" onClick={() => nav('/more')}>
