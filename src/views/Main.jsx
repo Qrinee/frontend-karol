@@ -371,7 +371,7 @@ useEffect(() => {
 </div>
         <div className="nav-item" onClick={() => nav('/more')}>
           <BsGearFill className="nav-icon" />
-          <span className="nav-label">Ustawienia</span>
+          <span className="nav-label">Więcej</span>
         </div>
       </nav>
       </div>
